@@ -21,18 +21,27 @@ public:
 			std::string passwordString(password);
 			if (passwordString.length() <=8)
 				throw new std::exception("Under nine characters password");
+			else {
+				bool anyUpperCase = false;
+				for (std::string::iterator it = passwordString.begin(); it != passwordString.end(); it++)
+				{
+					if (std::isupper(*it)) {
+						anyUpperCase = true;
+					}
+				}
+				if (!anyUpperCase){
+					throw new std::exception("No upper case characters password");
+				}
+			}
 		}
 		return true;
 	}
 };
 
-
 TEST(TestCaseName, TestName) {
   EXPECT_EQ(1, 1);
   EXPECT_TRUE(true);
 }
-
-
 TEST(TestCasePasswordVerification, nullPassword) {
 	PasswordVerifier passVerifier;
 	try {
@@ -53,6 +62,18 @@ TEST(TestCasePasswordVerification, underNineCharacters) {
 	}
 	catch (std::exception* e) {
 		ASSERT_EQ(0, std::string("Under nine characters password").compare(e->what()));
+		SUCCEED();
+	}
+}
+
+TEST(TestCasePasswordVerification, goodLength_noUpperCase) {
+	PasswordVerifier passVerifier;
+	try {
+		passVerifier.verify("aaaaaaaaa");
+		FAIL();
+	}
+	catch (std::exception* e) {
+		ASSERT_EQ(0, std::string("No upper case characters password").compare(e->what()));
 		SUCCEED();
 	}
 }
