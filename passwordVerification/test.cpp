@@ -1,4 +1,5 @@
 #include "pch.h"
+#include <exception>
 /*
 * null password
 * one character password
@@ -13,11 +14,15 @@ class PasswordVerifier
 {
 public:
 	PasswordVerifier() {};
-	bool verify(const char * password) {
+	bool verify(const char * password) throw(std::exception){
 		if (password == NULL)
-			return false;
-		else
-			return false;
+			throw new std::exception("NULL password");
+		else {
+			std::string passwordString(password);
+			if (passwordString.length() <=8)
+				throw new std::exception("Under nine characters password");
+		}
+		return true;
 	}
 };
 
@@ -30,10 +35,24 @@ TEST(TestCaseName, TestName) {
 
 TEST(TestCasePasswordVerification, nullPassword) {
 	PasswordVerifier passVerifier;
-	EXPECT_FALSE(passVerifier.verify(NULL));
+	try {
+		passVerifier.verify(NULL);
+		FAIL();
+	}
+	catch (std::exception *e) {
+		ASSERT_EQ(0, std::string("NULL password").compare(e->what()));
+		SUCCEED();
+	}
 }
 
-TEST(TestCasePasswordVerification, oneCharacter) {
+TEST(TestCasePasswordVerification, underNineCharacters) {
 	PasswordVerifier passVerifier;
-	EXPECT_FALSE(passVerifier.verify("a"));
+	try {
+		passVerifier.verify("aaaaaaaa");
+		FAIL();
+	}
+	catch (std::exception* e) {
+		ASSERT_EQ(0, std::string("Under nine characters password").compare(e->what()));
+		SUCCEED();
+	}
 }
