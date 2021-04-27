@@ -24,6 +24,7 @@ public:
 			else {
 				bool anyUpperCase = false;
 				bool anyLowerCase = false;
+				bool anyDigit = false;
 				for (std::string::iterator it = passwordString.begin(); it != passwordString.end(); it++)
 				{
 					if (std::isupper(*it)) {
@@ -32,12 +33,18 @@ public:
 					if (std::islower(*it)) {
 						anyLowerCase = true;
 					}
+					if (std::isdigit(*it)) {
+						anyLowerCase = true;
+					}
 				}
 				if (!anyUpperCase){
 					throw new std::exception("No upper case characters password");
 				}
 				if (!anyLowerCase) {
 					throw new std::exception("No lower case characters password");
+				}
+				if (!anyDigit) {
+					throw new std::exception("No digit characters password");
 				}
 			}
 		}
@@ -93,6 +100,18 @@ TEST(TestCasePasswordVerification, goodLength_upperCase_noLowerCase) {
 	}
 	catch (std::exception* e) {
 		ASSERT_EQ(0, std::string("No lower case characters password").compare(e->what()));
+		SUCCEED();
+	}
+}
+
+TEST(TestCasePasswordVerification, goodLength_upperAndLowerCase_noDigit) {
+	PasswordVerifier passVerifier;
+	try {
+		passVerifier.verify("AAAAAAAAa");
+		FAIL();
+	}
+	catch (std::exception* e) {
+		ASSERT_EQ(0, std::string("No digit characters password").compare(e->what()));
 		SUCCEED();
 	}
 }
