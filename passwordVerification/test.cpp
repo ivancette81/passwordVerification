@@ -14,7 +14,10 @@ class PasswordVerifier
 public:
 	PasswordVerifier() {};
 	bool verify(const char * password) {
-		return false;
+		if (password == NULL)
+			return false;
+		else
+			return false;
 	}
 };
 
@@ -28,4 +31,9 @@ TEST(TestCaseName, TestName) {
 TEST(TestCasePasswordVerification, nullPassword) {
 	PasswordVerifier passVerifier;
 	EXPECT_FALSE(passVerifier.verify(NULL));
+}
+
+TEST(TestCasePasswordVerification, oneCharacter) {
+	PasswordVerifier passVerifier;
+	EXPECT_FALSE(passVerifier.verify("a"));
 }
