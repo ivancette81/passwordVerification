@@ -15,41 +15,63 @@ class PasswordVerifier
 public:
 	PasswordVerifier() {};
 	bool verify(const char * password) throw(std::exception){
-		if (password == NULL)
-			throw new std::exception("NULL password");
-		else {
-			std::string passwordString(password);
-			if (passwordString.length() <=8)
-				throw new std::exception("Under nine characters password");
-			else {
-				bool anyUpperCase = false;
-				bool anyLowerCase = false;
-				bool anyDigit = false;
-				for (std::string::iterator it = passwordString.begin(); it != passwordString.end(); it++)
-				{
-					if (std::isupper(*it)) {
-						anyUpperCase = true;
-					}
-					if (std::islower(*it)) {
-						anyLowerCase = true;
-					}
-					if (std::isdigit(*it)) {
-						anyLowerCase = true;
-					}
-				}
-				if (!anyUpperCase){
-					throw new std::exception("No upper case characters password");
-				}
-				if (!anyLowerCase) {
-					throw new std::exception("No lower case characters password");
-				}
-				if (!anyDigit) {
-					throw new std::exception("No digit characters password");
-				}
-			}
-		}
+		verifyNotNull(password);
+		verifyOverEigthChatacters(password);
+		verifyAtLeastOneUpperCase(password);
+		verifyAtLeastOneLowerCase(password);
+		verifyAtLeastOneDigit(password);
+
 		return true;
 	}
+private:
+	void verifyNotNull(const char* password) {
+		if (password == NULL)
+			throw new std::exception("NULL password");
+	};
+	void verifyOverEigthChatacters(const char* password) {
+		std::string passwordString(password);
+		if (passwordString.length() <= 8)
+			throw new std::exception("Under nine characters password");
+	};
+	void verifyAtLeastOneUpperCase(const char* password) {
+		std::string passwordString(password);
+		bool anyUpperCase = false;
+		for (std::string::iterator it = passwordString.begin(); it != passwordString.end(); it++)
+		{
+			if (std::isupper(*it)) {
+				anyUpperCase = true;
+			}
+		}
+		if (!anyUpperCase) {
+			throw new std::exception("No upper case characters password");
+		}
+	};
+	void verifyAtLeastOneLowerCase(const char* password) {
+		bool anyLowerCase = false;
+		std::string passwordString(password);
+		for (std::string::iterator it = passwordString.begin(); it != passwordString.end(); it++)
+		{
+			if (std::islower(*it)) {
+				anyLowerCase = true;
+			}
+		}
+		if (!anyLowerCase) {
+			throw new std::exception("No lower case characters password");
+		}
+	};
+	void verifyAtLeastOneDigit(const char* password) {
+		bool anyDigit = false;
+		std::string passwordString(password);
+		for (std::string::iterator it = passwordString.begin(); it != passwordString.end(); it++)
+		{
+			if (std::isdigit(*it)) {
+				anyDigit = true;
+			}
+		}
+		if (!anyDigit) {
+			throw new std::exception("No digit characters password");
+		}
+	};
 };
 
 TEST(TestCaseName, TestName) {
@@ -113,5 +135,15 @@ TEST(TestCasePasswordVerification, goodLength_upperAndLowerCase_noDigit) {
 	catch (std::exception* e) {
 		ASSERT_EQ(0, std::string("No digit characters password").compare(e->what()));
 		SUCCEED();
+	}
+}
+
+TEST(TestCasePasswordVerification, happyPath) {
+	PasswordVerifier passVerifier;
+	try {
+		ASSERT_TRUE(passVerifier.verify("AAAAAAAAa34"));
+	}
+	catch (std::exception* e) {
+		FAIL();
 	}
 }
