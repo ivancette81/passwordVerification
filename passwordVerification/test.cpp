@@ -15,13 +15,36 @@ class PasswordVerifier
 public:
 	PasswordVerifier() {};
 	bool verify(const char * password) throw(std::exception){
-		verifyNotNull(password);
-		verifyOverEigthChatacters(password);
-		verifyAtLeastOneUpperCase(password);
-		verifyAtLeastOneLowerCase(password);
-		verifyAtLeastOneDigit(password);
+		int numberOfChecksPassed = 0;
+		try {
+			verifyNotNull(password);
+			numberOfChecksPassed++;
+		}
+		catch (std::exception* e) { return false; }
 
-		return true;
+		try {
+			verifyOverEigthChatacters(password);
+			numberOfChecksPassed++;
+		}
+		catch (std::exception* e) {}
+	
+		try {
+			verifyAtLeastOneUpperCase(password);
+			numberOfChecksPassed++;
+		}
+		catch (std::exception* e) {}
+		try {
+			verifyAtLeastOneLowerCase(password);
+			numberOfChecksPassed++;
+		}
+		catch (std::exception* e) {}
+		try {
+			verifyAtLeastOneDigit(password);
+			numberOfChecksPassed++;
+		}
+		catch (std::exception* e) {}
+
+		return numberOfChecksPassed>=3;
 	}
 private:
 	void verifyNotNull(const char* password) {
@@ -80,70 +103,30 @@ TEST(TestCaseName, TestName) {
 }
 TEST(TestCasePasswordVerification, nullPassword) {
 	PasswordVerifier passVerifier;
-	try {
-		passVerifier.verify(NULL);
-		FAIL();
-	}
-	catch (std::exception *e) {
-		ASSERT_EQ(0, std::string("NULL password").compare(e->what()));
-		SUCCEED();
-	}
+	ASSERT_FALSE(passVerifier.verify(NULL));
 }
 
 TEST(TestCasePasswordVerification, underNineCharacters) {
 	PasswordVerifier passVerifier;
-	try {
-		passVerifier.verify("aaaaaaaa");
-		FAIL();
-	}
-	catch (std::exception* e) {
-		ASSERT_EQ(0, std::string("Under nine characters password").compare(e->what()));
-		SUCCEED();
-	}
+	ASSERT_FALSE(passVerifier.verify("aaaaaaaa"));
 }
 
 TEST(TestCasePasswordVerification, goodLength_noUpperCase) {
 	PasswordVerifier passVerifier;
-	try {
-		passVerifier.verify("aaaaaaaaa");
-		FAIL();
-	}
-	catch (std::exception* e) {
-		ASSERT_EQ(0, std::string("No upper case characters password").compare(e->what()));
-		SUCCEED();
-	}
+	ASSERT_TRUE(passVerifier.verify("aaaaaaaaa"));
 }
 
 TEST(TestCasePasswordVerification, goodLength_upperCase_noLowerCase) {
 	PasswordVerifier passVerifier;
-	try {
-		passVerifier.verify("AAAAAAAAA");
-		FAIL();
-	}
-	catch (std::exception* e) {
-		ASSERT_EQ(0, std::string("No lower case characters password").compare(e->what()));
-		SUCCEED();
-	}
+	ASSERT_TRUE(passVerifier.verify("AAAAAAAAA"));
 }
 
 TEST(TestCasePasswordVerification, goodLength_upperAndLowerCase_noDigit) {
 	PasswordVerifier passVerifier;
-	try {
-		passVerifier.verify("AAAAAAAAa");
-		FAIL();
-	}
-	catch (std::exception* e) {
-		ASSERT_EQ(0, std::string("No digit characters password").compare(e->what()));
-		SUCCEED();
-	}
+	ASSERT_TRUE(passVerifier.verify("AAAAAAAAa"));
 }
 
 TEST(TestCasePasswordVerification, happyPath) {
 	PasswordVerifier passVerifier;
-	try {
-		ASSERT_TRUE(passVerifier.verify("AAAAAAAAa34"));
-	}
-	catch (std::exception* e) {
-		FAIL();
-	}
+	ASSERT_TRUE(passVerifier.verify("AAAAAAAAa34"));
 }
